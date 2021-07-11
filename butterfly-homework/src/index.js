@@ -123,6 +123,7 @@ async function createApp(dbPath) {
     const butterfly = await db.get('users')
       .find('butterflyRatings')
       .value();
+    //If no rating exists create new field to store
     if (!butterfly) {
       await db.get('users')
         .find({id: req.body.id})
@@ -131,11 +132,25 @@ async function createApp(dbPath) {
     }
     //also don't forget to check if it's already in there then update 
     //if I want to get fancy use get butterfly to verify butterfly exists
-    await db.get('users')
+    const butt = await db.get('users')
       .find({id: req.body.id})
       .get('butterflyRatings')
-      .push({butterfly:req.body.butterfly, rating:req.body.rating})
-      .write();
+      .find({butterfly:req.body.butterfly})
+      .value();
+    if (!butt){
+       await db.get('users')
+        .find({id: req.body.id})
+        .get('butterflyRatings')
+        .push({butterfly:req.body.butterfly, rating:req.body.rating})
+        .write();
+    }else{
+       await db.get('users')
+        .find({id: req.body.id})
+        .get('butterflyRatings')
+        .find({butterfly:req.body.butterfly})
+        .assign({rating:req.body.rating})
+        .write();
+    }
 
     res.json(req.body);
   });
@@ -143,8 +158,6 @@ async function createApp(dbPath) {
   //Get ratings endpoint will look like users/ratings/:user_id
   return app;
 }
-
-
 
 
 /* istanbul ignore if */

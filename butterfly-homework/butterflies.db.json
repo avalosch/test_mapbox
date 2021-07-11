@@ -48,7 +48,11 @@
       "butterflyRatings": [
         {
           "butterfly": "Monarc",
-          "rating": "four"
+          "rating": "five"
+        },
+        {
+          "butterfly": "Monarcs",
+          "rating": "five"
         }
       ]
     },
