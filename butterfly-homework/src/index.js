@@ -112,21 +112,32 @@ async function createApp(dbPath) {
     } catch (error) {
       return res.status(400).json({ error: 'Invalid request body' + req.params.id });
     }
-    const newRating = {
-      
-      ...req.body
-    };
-
-    //if there is an existing butterflyrating
-    //how to check that? Create a const check if null? 
-    //also don't forget to check if ti's already in there then update 
+    //Does user exist
+    const user = await db.get('users')
+      .find({ id: req.body.id })
+      .value();
+    if (!user) {
+      return res.status(404).json({ error: 'User Not found' });
+    }
+    //Does user have a rating 
+    const butterfly = await db.get('users')
+      .find('butterflyRatings')
+      .value();
+    if (!butterfly) {
+      await db.get('users')
+        .find({id: req.body.id})
+        .assign({butterflyRatings:[]})
+        .write();
+    }
+    //also don't forget to check if it's already in there then update 
     //if I want to get fancy use get butterfly to verify butterfly exists
     await db.get('users')
       .find({id: req.body.id})
       .get('butterflyRatings')
-      .assign({butterfly:req.body.butterfly, rating:req.body.rating})
+      .push({butterfly:req.body.butterfly, rating:req.body.rating})
       .write();
-    res.json(newRating);
+
+    res.json(req.body);
   });
 
   //Get ratings endpoint will look like users/ratings/:user_id
