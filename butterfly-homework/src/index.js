@@ -6,7 +6,7 @@ const FileAsync = require('lowdb/adapters/FileAsync');
 const shortid = require('shortid');
 
 const constants = require('./constants');
-const { validateButterfly, validateUser } = require('./validators');
+const { validateButterfly, validateUser, validateRating } = require('./validators');
 
 async function createApp(dbPath) {
   const app = express();
@@ -85,7 +85,7 @@ async function createApp(dbPath) {
    */
   app.post('/users', async (req, res) => {
     try {
-      validateUser(req.body);
+      validateRating(req.body);
     } catch (error) {
       return res.status(400).json({ error: 'Invalid request body' });
     }
@@ -102,8 +102,39 @@ async function createApp(dbPath) {
     res.json(newUser);
   });
 
+  /**
+   * Rate a butterfly
+   * POST
+   */
+  app.post('/users/ratings', async (req, res) => {
+    try {
+      validateRating(req.body);
+    } catch (error) {
+      return res.status(400).json({ error: 'Invalid request body' + req.params.id });
+    }
+    const newRating = {
+      
+      ...req.body
+    };
+
+    //if there is an existing butterflyrating
+    //how to check that? Create a const check if null? 
+    //also don't forget to check if ti's already in there then update 
+    //if I want to get fancy use get butterfly to verify butterfly exists
+    await db.get('users')
+      .find({id: req.body.id})
+      .get('butterflyRatings')
+      .assign({butterfly:req.body.butterfly, rating:req.body.rating})
+      .write();
+    res.json(newRating);
+  });
+
+  //Get ratings endpoint will look like users/ratings/:user_id
   return app;
 }
+
+
+
 
 /* istanbul ignore if */
 if (require.main === module) {
