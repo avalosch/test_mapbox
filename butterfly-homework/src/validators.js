@@ -19,7 +19,7 @@ const validateUser = v.assert(
 const validateRating = v.assert(
   v.strictShape({
     id: v.required(v.string),
-    rating: v.required(v.string),
+    rating: v.required(v.number),
     butterfly: v.required(v.any)
   })
 );
