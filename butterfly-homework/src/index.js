@@ -85,7 +85,7 @@ async function createApp(dbPath) {
    */
   app.post('/users', async (req, res) => {
     try {
-      validateRating(req.body);
+      validateUser(req.body);
     } catch (error) {
       return res.status(400).json({ error: 'Invalid request body' });
     }
@@ -101,55 +101,61 @@ async function createApp(dbPath) {
 
     res.json(newUser);
   });
+
   /**
-   * Rate a butterfly
+   * Add butterfly to users ratings
    * POST
    */
   app.post('/users/ratings', async (req, res) => {
     try {
       validateRating(req.body);
     } catch (error) {
-      return res.status(400).json({ error: 'Invalid request body'});
+      return res.status(400).json({ error: 'Invalid request body' });
     }
     const user = await db.get('users')
       .find({ id: req.body.id })
       .value();
+
     if (!user) {
-      return res.status(404).json({ error: 'User Not found' });
+      return res.status(404).json({ error: 'User not found' });
     }
-    if(req.body.rating > 5 || req.body.rating < 0){
-      return res.status(404).json({ error: 'Invalid Rating' });
+    if (req.body.rating > 5 || req.body.rating < 0) {
+      return res.status(400).json({ error: 'Invalid Rating' });
     }
-    //Does user have ratings
+    // Does user have ratings
     const rate = await db.get('users')
+      .find({ id: req.body.id })
       .find('butterflyRatings')
       .value();
-    //If no ratings exists create new field to store
+
+    // If no ratings exists, create new field to store
     if (!rate) {
       await db.get('users')
-        .find({id: req.body.id})
-        .assign({butterflyRatings:[]})
+        .find({ id: req.body.id })
+        .assign({ butterflyRatings:[] })
         .write();
     }
     const butterfly = await db.get('users')
-      .find({id: req.body.id})
+      .find({ id: req.body.id })
       .get('butterflyRatings')
-      .find({butterfly:req.body.butterfly})
+      .find({ butterfly:req.body.butterfly })
       .value();
-    //If butterfly not stored in ratings, add
+
+    // If butterfly not stored in ratings, add
     if (!butterfly){
-       await db.get('users')
-        .find({id: req.body.id})
+      await db.get('users')
+        .find({ id: req.body.id })
         .get('butterflyRatings')
-        .push({butterfly:req.body.butterfly, rating:req.body.rating})
+        .push({ butterfly:req.body.butterfly, rating:req.body.rating })
         .write();
-    //If in stored ratings, update the value 
-    }else{
-       await db.get('users')
-        .find({id: req.body.id})
+    }
+    // If in stored ratings, update the value
+    else {
+      await db.get('users')
+        .find({ id: req.body.id })
         .get('butterflyRatings')
-        .find({butterfly:req.body.butterfly})
-        .assign({rating:req.body.rating})
+        .find({ butterfly:req.body.butterfly })
+        .assign({ rating:req.body.rating })
         .write();
     }
     res.json(req.body);
@@ -161,16 +167,15 @@ async function createApp(dbPath) {
    */
   app.get('/users/ratings/:userid', async (req, res) => {
     const ratings = await db.get('users')
-      .find({id: req.params.userid})
+      .find({ id: req.params.userid })
       .get('butterflyRatings')
       .value();
     if (!ratings) {
-      return res.status(404).json({ error: 'Not ratings found' });
+      return res.status(404).json({ error: 'No ratings found' });
     }
     res.json(ratings);
   });
 
-  //Get ratings endpoint will look like users/ratings/:user_id
   return app;
 }
 

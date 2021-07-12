@@ -164,9 +164,7 @@ describe('POST user', () => {
 
     const postResponse = await request(app)
       .post('/users')
-      .send({
-        username: 'Buster'
-      });
+      .send({ username: 'Buster' });
 
     expect(postResponse.status).toBe(200);
     expect(postResponse.body).toEqual({
@@ -203,6 +201,84 @@ describe('POST user', () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       error: 'Invalid request body'
+    });
+  });
+});
+
+describe('POST users/ratings', () => {
+  it('success', async () => {
+    const postResponse = await request(app)
+      .post('/users/ratings')
+      .send({
+        id: 'abcd1234',
+        rating: 5,
+        butterfly: 'Monarch'
+      });
+
+    expect(postResponse.status).toBe(200);
+    expect(postResponse.body).toEqual({
+      id: 'abcd1234',
+      rating: 5,
+      butterfly: 'Monarch'
+    });
+
+    const getResponse = await request(app)
+      .get('/users/ratings/abcd1234');
+
+    expect(getResponse.status).toBe(200);
+    expect(getResponse.body).toEqual([{
+      butterfly: 'Monarch',
+      rating: 5
+    }]);
+  });
+  it('error - empty body', async () => {
+    const response = await request(app)
+      .post('/users/ratings')
+      .send();
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      error: 'Invalid request body'
+    });
+  });
+
+  it('error - missing all attributes', async () => {
+    const response = await request(app)
+      .post('/users/ratings')
+      .send({});
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      error: 'Invalid request body'
+    });
+  });
+
+  it('error - invalid user', async () => {
+    const response = await request(app)
+      .post('/users/ratings')
+      .send({
+        id: 'fake_user',
+        rating: 10,
+        butterfly: 'Monarch'
+      });
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({
+      error: 'User not found'
+    });
+  });
+
+  it('error - invalid rating', async () => {
+    const response = await request(app)
+      .post('/users/ratings')
+      .send({
+        id: 'abcd1234',
+        rating: 10,
+        butterfly: 'Monarch'
+      });
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      error: 'Invalid Rating'
     });
   });
 });
