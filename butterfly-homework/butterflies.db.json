@@ -40,23 +40,11 @@
   "users": [
     {
       "id": "OOWzUaHLsK",
-      "username": "iluvbutterflies",
-      "butterflyRatings": [
-        {
-          "butterfly": "Monarcs",
-          "rating": 5
-        }
-      ]
+      "username": "iluvbutterflies"
     },
     {
       "id": "sdmU7-wkQX",
-      "username": "flutterby",
-      "butterflyRatings": [
-        {
-          "butterfly": "Monarchs",
-          "rating": 5
-        }
-      ]
+      "username": "flutterby"
     },
     {
       "id": "aqekk3t4kw",

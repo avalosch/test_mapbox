@@ -305,6 +305,7 @@ describe('POST users/ratings', () => {
     });
   });
 });
+
 describe('GET ratings', () => {
   it('success', async () => {
     const response = await request(app)

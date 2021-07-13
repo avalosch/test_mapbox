@@ -125,7 +125,7 @@ async function createApp(dbPath) {
     // Does user have ratings
     const rate = await db.get('users')
       .find({ id: req.body.id })
-      .find('butterflyRatings')
+      .get('butterflyRatings')
       .value();
 
     // If no ratings exists, create new field to store
@@ -162,7 +162,7 @@ async function createApp(dbPath) {
   });
 
   /**
-   * Get a users butterfly ratings
+   * Get a users butterfly ratings in sorted order
    * GET
    */
   app.get('/users/ratings/:userid', async (req, res) => {
@@ -173,7 +173,7 @@ async function createApp(dbPath) {
     if (!ratings) {
       return res.status(404).json({ error: 'No ratings found' });
     }
-    res.json(ratings);
+    res.json(ratings.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating)));
   });
 
   return app;
