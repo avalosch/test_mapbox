@@ -221,7 +221,6 @@ describe('POST users/ratings', () => {
       rating: 5,
       butterfly: 'Monarch'
     });
-
     const getResponse = await request(app)
       .get('/users/ratings/abcd1234');
 
@@ -229,6 +228,30 @@ describe('POST users/ratings', () => {
     expect(getResponse.body).toEqual([{
       butterfly: 'Monarch',
       rating: 5
+    }]);
+  });
+  it('success', async () => {
+    const postResponseUpdate = await request(app)
+      .post('/users/ratings')
+      .send({
+        id: 'abcd1234',
+        rating: 4,
+        butterfly: 'Monarch'
+      });
+
+    expect(postResponseUpdate.status).toBe(200);
+    expect(postResponseUpdate.body).toEqual({
+      id: 'abcd1234',
+      rating: 4,
+      butterfly: 'Monarch'
+    });
+    const getResponseUpdate = await request(app)
+      .get('/users/ratings/abcd1234');
+
+    expect(getResponseUpdate.status).toBe(200);
+    expect(getResponseUpdate.body).toEqual([{
+      butterfly: 'Monarch',
+      rating: 4
     }]);
   });
   it('error - empty body', async () => {
@@ -279,6 +302,27 @@ describe('POST users/ratings', () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       error: 'Invalid Rating'
+    });
+  });
+});
+describe('GET ratings', () => {
+  it('success', async () => {
+    const response = await request(app)
+      .get('/users/ratings/abcd1234');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([{
+      butterfly: 'Monarch',
+      rating: 4
+    }]);
+  });
+  it('error - not found', async () => {
+    const response = await request(app)
+      .get('/users/ratings/other_user');
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({
+      error: 'No ratings found'
     });
   });
 });
